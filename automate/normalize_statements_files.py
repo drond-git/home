@@ -110,49 +110,49 @@ def MakeKeywords(input):
 # uppercase letters -- we match against filename.lower().
 C_YYYYMMDD = (  # 20120930.pdf
    '^%s%s%s%s$' % (RE_YYYY, RE_MM, RE_DD, RE_EXT),
-   '%(yyyy)s%(mm)s%(dd)s%(ext)s)')
+   '%(yyyy)s%(mm)s%(dd)s%(ext)s')
 C_YYYY_MM_DD = (  # 2012_09_30.pdf
    '^%s_%s_%s%s$' % (RE_YYYY, RE_MM, RE_DD, RE_EXT),
-   '%(yyyy)s%(mm)s%(dd)s%(ext)s)')
+   '%(yyyy)s%(mm)s%(dd)s%(ext)s')
 C_MMDDYYYY = (  # 09302012.pdf
    '^%s%s%s%s$' % (RE_MM, RE_DD, RE_YYYY, RE_EXT),
-   '%(yyyy)s%(mm)s%(dd)s%(ext)s)')
+   '%(yyyy)s%(mm)s%(dd)s%(ext)s')
 C_YYYY_MM = (  # 2012_11.pdf
    '^%s%s%s$' % (RE_YYYY, RE_MM, RE_EXT),
-   '%(yyyy)s%(mm)s%(dd)s%(ext)s)')
+   '%(yyyy)s%(mm)s%(dd)s%(ext)s')
 C_eStmt_YYYY_MM_DD = (  # eStmt_2012-09-27.pdf
    '^estmt_%s-%s-%s%s$' % (RE_YYYY, RE_MM, RE_DD, RE_EXT),
-   '%(yyyy)s%(mm)s%(dd)s_estmt%(ext)s)')
+   '%(yyyy)s%(mm)s%(dd)s_estmt%(ext)s')
 C_eStmt_MM_DD_YYYY = (  # eStmt_09-27-2012.pdf
    '^estmt_%s_%s_%s%s$' % (RE_MM, RE_DD, RE_YYYY, RE_EXT),
-   '%(yyyy)s%(mm)s%(dd)s_estmt%(ext)s)')
+   '%(yyyy)s%(mm)s%(dd)s_estmt%(ext)s')
 C_MM_DD_YYYY_AccountId = (  # 12_30_2001_2345.pdf
    '^%s_%s_%s_%s%s' % (RE_MM, RE_DD, RE_YYYY, RE_ACCOUNT_ID, RE_EXT),
-   '%(yyyy)s%(mm)s%(dd)s_%(account_id)s%(ext)s)')
+   '%(yyyy)s%(mm)s%(dd)s_%(account_id)s%(ext)s')
 C_YYYY_MM = (  # 2012_09.pdf
    '^%s_%s%s$' % (RE_YYYY, RE_MM, RE_EXT),
-   '%(yyyy)s%(mm)s%(dd)s%(ext)s)')
+   '%(yyyy)s%(mm)s%(dd)s%(ext)s')
 C_MonthYYYY_AccountId = (  # November2012_7257.qfx
    '^%s%s_%s%s' % (RE_MONTH, RE_YYYY, RE_ACCOUNT_ID, RE_EXT),
-   '%(yyyy)s%(mm)s%(dd)s_%(account_id)s%(ext)s)')
+   '%(yyyy)s%(mm)s%(dd)s_%(account_id)s%(ext)s')
 C_vanguard_AccountId_YYYYMMDD = (  # vanguard-093926-20110322.pdf
    '^vanguard-%s-%s%s%s%s' % (RE_ACCOUNT_ID, RE_YYYY, RE_MM, RE_DD, RE_EXT),
-   '%(yyyy)s%(mm)s%(dd)s_%(account_id)s%(ext)s)')
+   '%(yyyy)s%(mm)s%(dd)s_%(account_id)s%(ext)s')
 C_etrade_AccountId_YYYYMMDD = (  # etrade-9433-20110322.pdf
    '^etrade-%s-%s%s%s%s' % (RE_ACCOUNT_ID, RE_YYYY, RE_MM, RE_DD, RE_EXT),
-   '%(yyyy)s%(mm)s%(dd)s_%(account_id)s%(ext)s)')
+   '%(yyyy)s%(mm)s%(dd)s_%(account_id)s%(ext)s')
 C_etrade_AccountId_YYYY_MM_DD = (  # etrade-9433-2011_03-22.pdf
    '^etrade-%s-%s_%s-%s%s' % (RE_ACCOUNT_ID, RE_YYYY, RE_MM, RE_DD, RE_EXT),
-   '%(yyyy)s%(mm)s%(dd)s_%(account_id)s%(ext)s)')
+   '%(yyyy)s%(mm)s%(dd)s_%(account_id)s%(ext)s')
 C_ing_AccountId_YYYYMMDD = (  # ing-vf2245-20040930.pdf
    '^ing-%s-%s%s%s%s' % (RE_ACCOUNT_ID, RE_YYYY, RE_MM, RE_DD, RE_EXT),
-   '%(yyyy)s%(mm)s%(dd)s_%(account_id)s%(ext)s)')
+   '%(yyyy)s%(mm)s%(dd)s_%(account_id)s%(ext)s')
 C_Statement_MM_DD_YY_AccountId = (  # Statement_03-31-13_7356.pdf
    '^statement_%s-%s-%s_%s%s' % (RE_MM, RE_DD, RE_YY, RE_ACCOUNT_ID, RE_EXT),
-   '%(yyyy)s%(mm)s%(dd)s_%(account_id)s%(ext)s)')
+   '%(yyyy)s%(mm)s%(dd)s_%(account_id)s%(ext)s')
 C_Statement_MON_YYYY = (  # Statement_Feb 2013.pdf
    r'^statement_%s %s%s' % (RE_MON, RE_YYYY, RE_EXT),
-   '%(yyyy)s%(mm)s%(dd)s%(ext)s)')
+   '%(yyyy)s%(mm)s%(dd)s%(ext)s')
 
 # Map account subdirectories to conversions that should apply inside each.
 # We can't rely on regexp matching alone and have to be explicit, because
@@ -178,7 +178,7 @@ ACCOUNT_REGEXP_TO_CONVERSIONS = {
 }
 
 
-def IsIgnoredFile(filepath):
+def IsFileIgnored(filepath):
   """Returns True is the filepath should be ignored for processing."""
   is_ignored = False
   for regexp in [
@@ -195,7 +195,7 @@ def IsIgnoredFile(filepath):
 
 
 def TryNormalize(filename, conversions, dry_run=True):
-  """If necessary, normalized the file. Returns a tuple."""
+  """If necessary, normalize the file. Returns new filename or None."""
   logging.debug('Trying to normalize %r via %r.', filename, conversions)
   # TODO(drond-git): Add renaming for filenames that we want sortable even
   # though they don't involve timestamps.
@@ -241,7 +241,7 @@ def GetRelativeDirpath(dirpath, dirpath_root):
 def NormalizeStatementsFiles(statements_root):
   # Find all the files that could possibly be renamed.
   fileset_initial = ListFilesRecursively(
-      statements_root, filter_func=IsIgnoredFile)
+      statements_root, filter_func=IsFileIgnored)
   # Partition all files by account directory.
   relative_dirpaths_seen = set()
   relative_dirpath_partitions = {}
