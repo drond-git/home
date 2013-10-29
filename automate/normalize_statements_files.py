@@ -37,9 +37,8 @@ RE_MONTH = r'(?P<month>%s)' % '|'.join(MONTHS_SORTED)  # january-december
 RE_MON = r'(?P<mon>%s)' % '|'.join(MONS_SORTED)  # jan-dec
 
 # Various formats for presenting less fundamental patterns.
-RE_ACCOUNT_ID = (
-    r'(?P<account_id>\d{4,7}|[a-z0-9]{4,7})')
-
+RE_ACCOUNT_ID = r'(?P<account_id>\d{4,7}|[a-z0-9]{4,7})'
+RE_CHECK_NUMBER = r'(?P<check_number>\d{1,4})'
 
 def GenerateDateRangeRegexp(re_yyyy, re_mm, re_dd):
   """Compose a matcher for YYYYMMDD-YYYYMMDD from YYYY, MM, DD regexps."""
@@ -102,6 +101,8 @@ def MakeKeywords(input):
   if 'dd' not in input:
     # Put something visibly wrong in the DD field, if absent.
     input['dd'] = 'DD'
+  if 'check_number' in input:
+    input['check_number'] = '%04d' % int(input['check_number'])
   return input
 
 
@@ -123,7 +124,7 @@ C_YYYY_MM = (  # 2012_11.pdf
 C_eStmt_YYYY_MM_DD = (  # eStmt_2012-09-27.pdf
    '^estmt_%s-%s-%s%s$' % (RE_YYYY, RE_MM, RE_DD, RE_EXT),
    '%(yyyy)s%(mm)s%(dd)s_estmt%(ext)s')
-C_eStmt_MM_DD_YYYY = (  # eStmt_09-27-2012.pdf
+C_eStmt_MM_DD_YYYY = (  # eStmt_09_27_2012.pdf
    '^estmt_%s_%s_%s%s$' % (RE_MM, RE_DD, RE_YYYY, RE_EXT),
    '%(yyyy)s%(mm)s%(dd)s_estmt%(ext)s')
 C_MM_DD_YYYY_AccountId = (  # 12_30_2001_2345.pdf
@@ -153,6 +154,10 @@ C_Statement_MM_DD_YY_AccountId = (  # Statement_03-31-13_7356.pdf
 C_Statement_MON_YYYY = (  # Statement_Feb 2013.pdf
    r'^statement_%s %s%s' % (RE_MON, RE_YYYY, RE_EXT),
    '%(yyyy)s%(mm)s%(dd)s%(ext)s')
+C_check_CHECK_NUMBER = (  # check-1002.jpg
+   r'^check-%s%s' % (RE_CHECK_NUMBER, RE_EXT),
+   'check-%(check_number)s%(ext)s')
+
 
 # Map account subdirectories to conversions that should apply inside each.
 # We can't rely on regexp matching alone and have to be explicit, because
@@ -162,7 +167,7 @@ ACCOUNT_REGEXP_TO_CONVERSIONS = {
   '^amex-inla': [C_Statement_MON_YYYY, C_YYYY_MM_DD],
   '^boa-(aaa|checking|quixtar)': [
       C_YYYYMMDD, C_MM_DD_YYYY_AccountId, C_MonthYYYY_AccountId,
-      C_eStmt_YYYY_MM_DD, C_eStmt_MM_DD_YYYY],
+      C_eStmt_YYYY_MM_DD, C_eStmt_MM_DD_YYYY, C_check_CHECK_NUMBER],
   '^charles-invest': [C_Statement_MM_DD_YY_AccountId],
   '^chase-loan-subaru': [C_YYYY_MM],
   '^etrade-bank': [C_YYYY_MM, C_MMDDYYYY],
