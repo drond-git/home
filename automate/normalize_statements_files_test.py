@@ -115,6 +115,8 @@ class ModuleTest(unittest.TestCase):
        'Statement_Feb 2013.PDF', '201302DD.pdf'),
       (normalize_statements_files.C_check_CHECK_NUMBER,
        'check-12.JPG', 'check-0012.jpg'),
+      (normalize_statements_files.C_YYYY_year_end,
+       '2012-Year End Statement.pdf', '2012_year_end.pdf'),
     ]
     for conversion, filename, filename_new in test_values:
       self.assertEqual(
