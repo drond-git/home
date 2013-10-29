@@ -157,6 +157,9 @@ C_Statement_MON_YYYY = (  # Statement_Feb 2013.pdf
 C_check_CHECK_NUMBER = (  # check-1002.jpg
    r'^check-%s%s' % (RE_CHECK_NUMBER, RE_EXT),
    'check-%(check_number)s%(ext)s')
+C_YYYY_year_end = (  # 2012-Year End Statement.pdf
+   r'^%s(?:.*[Yy]ear.*[Ee]nd.*)%s' % (RE_YYYY, RE_EXT),
+   '%(yyyy)s_year_end%(ext)s')
 
 
 # Map account subdirectories to conversions that should apply inside each.
@@ -167,7 +170,8 @@ ACCOUNT_REGEXP_TO_CONVERSIONS = {
   '^amex-inla': [C_Statement_MON_YYYY, C_YYYY_MM_DD],
   '^boa-(aaa|checking|quixtar)': [
       C_YYYYMMDD, C_MM_DD_YYYY_AccountId, C_MonthYYYY_AccountId,
-      C_eStmt_YYYY_MM_DD, C_eStmt_MM_DD_YYYY, C_check_CHECK_NUMBER],
+      C_eStmt_YYYY_MM_DD, C_eStmt_MM_DD_YYYY, C_check_CHECK_NUMBER,
+      C_YYYY_year_end],
   '^charles-invest': [C_Statement_MM_DD_YY_AccountId],
   '^chase-loan-subaru': [C_YYYY_MM],
   '^etrade-bank': [C_YYYY_MM, C_MMDDYYYY],
@@ -179,7 +183,10 @@ ACCOUNT_REGEXP_TO_CONVERSIONS = {
   '^paypal-vitaliy': [C_YYYY_MM],
   '^vanguard-retirement': [C_vanguard_AccountId_YYYYMMDD],
   '^wellsfargo-mortgage': [C_YYYYMMDD],
-  'inactive/': [C_YYYYMMDD, C_MM_DD_YYYY_AccountId, C_eStmt_YYYY_MM_DD],
+  '^morgan-invest': [C_YYYY_year_end],
+  'inactive/': [
+      C_YYYYMMDD, C_MM_DD_YYYY_AccountId, C_eStmt_YYYY_MM_DD,
+      C_check_CHECK_NUMBER],
 }
 
 
