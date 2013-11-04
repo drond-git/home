@@ -6,17 +6,10 @@
 import unittest
 import logging
 
-import normalize_statements_files
+from automate import normalize_statements_files
 
 
 class ModuleTest(unittest.TestCase):
-
-  def testGenerateDateRangeRegexp(self):
-    self.assertEqual(
-        ('(P?<year_lower>.)(P?<month_lower>.)(P?<day_lower>.)-'
-         '(P?<year_upper>.)(P?<month_upper>.)(P?<day_upper>.)'),
-        normalize_statements_files.GenerateDateRangeRegexp(
-          '(P?<year>.)', '(P?<month>.)', '(P?<day>.)'))
 
   def testMakeKeywordsExtOnly(self):
     self.assertEqual(
@@ -123,16 +116,6 @@ class ModuleTest(unittest.TestCase):
           filename_new,
           normalize_statements_files.TryNormalize(
               filename, [conversion], dry_run=True))
-
-  def testGetRelativeDirpath(self):
-    self.assertEqual(
-        '', normalize_statements_files.GetRelativeDirpath('/', '/'))
-    self.assertEqual(
-        'foo', normalize_statements_files.GetRelativeDirpath('/foo', '/'))
-    self.assertEqual(
-        'baz',
-        normalize_statements_files.GetRelativeDirpath(
-            '/foo/bar/baz', '/foo/bar'))
 
 
 if __name__ == '__main__':

@@ -1,13 +1,17 @@
 #!/usr/bin/env python
+#123456789.123456789.123456789.123456789.123456789.123456789.123456789.123456789
 #
 # All statements files should be named consistently. Rename statements
 # files in all directories, and list files that were not recognized.
 #
-#123456789.123456789.123456789.123456789.123456789.123456789.123456789.123456789
 
 import re
 import logging
 import os
+
+from common import timestamp
+from common import filesystem
+
 
 logging.basicConfig(level=logging.WARNING)
 #logging.basicConfig(level=logging.INFO)
@@ -40,30 +44,8 @@ RE_MON = r'(?P<mon>%s)' % '|'.join(MONS_SORTED)  # jan-dec
 RE_ACCOUNT_ID = r'(?P<account_id>\d{4,7}|[a-z0-9]{4,7})'
 RE_CHECK_NUMBER = r'(?P<check_number>\d{1,4})'
 
-def GenerateDateRangeRegexp(re_yyyy, re_mm, re_dd):
-  """Compose a matcher for YYYYMMDD-YYYYMMDD from YYYY, MM, DD regexps."""
 
-  def AddSuffix(re_with_p, suffix):
-    """Returns re_with_p copy with "?P<name>" --> "?P<namesuffix>"."""
-    return re.sub(r'>', '%s>' % suffix, re_with_p, count=1)
-
-  # This is necessary to be able to reuse the RE_YYYY that are defined
-  # with ?P<name> attributes. Each RE_* has to be used twice, so we have
-  # to edit re definitions.
-  re_yyyy_lower = AddSuffix(re_yyyy, '_lower')
-  re_yyyy_upper = AddSuffix(re_yyyy, '_upper')
-  re_mm_lower = AddSuffix(re_mm, '_lower')
-  re_mm_upper = AddSuffix(re_mm, '_upper')
-  re_dd_lower = AddSuffix(re_dd, '_lower')
-  re_dd_upper = AddSuffix(re_dd, '_upper')
-  re_date_range = '%s%s%s-%s%s%s' % (
-      re_yyyy_lower, re_mm_lower, re_dd_lower,
-      re_yyyy_upper, re_mm_upper, re_dd_upper)
-  logging.debug('RE_DATE_RANGE: %r', re_date_range)
-  return re_date_range
-
-
-RE_DATE_RANGE = GenerateDateRangeRegexp(RE_YYYY, RE_MM, RE_DD)
+RE_DATE_RANGE = timestamp.GenerateDateRangeRegexp(RE_YYYY, RE_MM, RE_DD)
 
 
 def GenerateMmByMonthMap(months):
@@ -223,42 +205,15 @@ def TryNormalize(filename, conversions, dry_run=True):
   return None  # None if not matched any renamer expression.
 
 
-def ListFilesRecursively(directory, filter_func=None):
-  """Yields tuple (dirname, basename) for every file below directory."""
-  logging.debug('Listing files in %r.', directory)
-  for (dirpath, unused_dirnames, filenames) in os.walk(directory):
-    for filename in filenames:
-      filepath = os.path.join(dirpath, filename)
-      if os.path.isfile(filepath):
-        if filter_func:
-          if filter_func(filepath):
-            continue
-        yield dirpath, filename
-
-
-def GetRelativeDirpath(dirpath, dirpath_root):
-  """Returns the trailing part of dirpath with dirpath_root/ omitted."""
-  # Defend against double or trailing slash. Could pull this up, to optimize.
-  norm_dirpath = os.path.normpath(dirpath)
-  norm_dirpath_root = os.path.normpath(dirpath_root)
-  # Get the relative dirpath.
-  assert norm_dirpath.startswith(norm_dirpath_root)
-  relative_dirpath = norm_dirpath.replace(norm_dirpath_root, '')
-  # Remove its leading slash.
-  if relative_dirpath.startswith('/'):
-    relative_dirpath = relative_dirpath[1:]
-  return relative_dirpath  # This may be an empty string.
-
-
 def NormalizeStatementsFiles(statements_root):
   # Find all the files that could possibly be renamed.
-  fileset_initial = ListFilesRecursively(
+  fileset_initial = filesystem.ListFilesRecursively(
       statements_root, filter_func=IsFileIgnored)
   # Partition all files by account directory.
   relative_dirpaths_seen = set()
   relative_dirpath_partitions = {}
   for dirpath, filename in fileset_initial:
-    relative_dirpath = GetRelativeDirpath(dirpath, statements_root)
+    relative_dirpath = filesystem.GetRelativeDirpath(dirpath, statements_root)
     relative_dirpaths_seen.add(relative_dirpath)
     if relative_dirpath not in relative_dirpath_partitions:
       relative_dirpath_partitions[relative_dirpath] = []
