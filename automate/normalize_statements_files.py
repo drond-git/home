@@ -24,15 +24,6 @@ STATEMENTS_ROOT_DIR = (
     'statements')
 
 
-MONTHS_SORTED = (
-    'january', 'february', 'march', 'april', 'may', 'june',
-    'july', 'august', 'september', 'october', 'november', 'december')
-MONS_SORTED = (
-    'jan', 'feb', 'mar', 'apr', 'may', 'jun',
-    'jul', 'aug', 'sep', 'oct', 'nov', 'dec')
-
-
-
 # Various formats for presenting less fundamental patterns.
 RE_ACCOUNT_ID = r'(?P<account_id>\d{4,7}|[a-z0-9]{4,7})'
 
@@ -41,46 +32,6 @@ T = filesystem.Transformation
 
 
 RE_DATE_RANGE = timestamp.GenerateDateRangeRegexp(T.RE_YYYY, T.RE_MM, T.RE_DD)
-
-
-def GenerateMmByMonthMap(months):
-  mm_by_month_map = {}
-  for i, month in enumerate(months):
-      mm_by_month_map[month] = '%02d' % (i + 1)
-  return mm_by_month_map
-
-
-MM_BY_MONTH_MAP = GenerateMmByMonthMap(MONTHS_SORTED)
-MM_BY_MON_MAP = GenerateMmByMonthMap(MONS_SORTED)
-
-
-def MakeKeywords(input):
-  """Returns the input dict with select key values adjusted."""
-  if 'ext' in input:
-    # Always lower the extension (this may be redundant now).
-    input['ext'] = input['ext'].lower()
-  if 'yyyy' not in input:
-    # First see if other sources of YYYY are available.
-    if 'yy' in input:
-      input['yyyy'] = '20%s' % input['yy']
-    else:
-      # Put something visibly wrong in the YYYY field, if absent.
-      input['yyyy'] = 'YYYY'
-  if 'mm' not in input:
-    # First see if other sources of MM are available.
-    if 'month' in input:
-      input['mm'] = MM_BY_MONTH_MAP[input['month'].lower()]
-    elif 'mon' in input:
-      input['mm'] = MM_BY_MON_MAP[input['mon'].lower()]
-    else:
-      # Put something visibly wrong in the MM field, if absent.
-      input['mm'] = 'MM'
-  if 'dd' not in input:
-    # Put something visibly wrong in the DD field, if absent.
-    input['dd'] = 'DD'
-  if 'check_number' in input:
-    input['check_number'] = '%04d' % int(input['check_number'])
-  return input
 
 
 # Define the conversions for use by various accounts directories.
