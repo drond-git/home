@@ -15,7 +15,7 @@ from common import filesystem
 
 logging.basicConfig(level=logging.WARNING)
 #logging.basicConfig(level=logging.INFO)
-logging.basicConfig(level=logging.DEBUG)
+#logging.basicConfig(level=logging.DEBUG)
 
 
 # The directory where to look for statements files.
@@ -32,20 +32,15 @@ MONS_SORTED = (
     'jul', 'aug', 'sep', 'oct', 'nov', 'dec')
 
 
-RE_YYYY = r'(?P<yyyy>20[0-2]\d|YYYY)'  # 2000-2029 or YYYY
-RE_YY = r'(?P<yy>[0-2]\d|YYYY)'  # 00-29
-RE_MM = r'(?P<mm>0\d|1[0-2]|MM)'  # 00-12 or MM
-RE_DD = r'(?P<dd>[012]\d|3[01]|DD)'  # 00-31 or DD
-RE_EXT = r'(?P<ext>\..+)'  # .pdf
-RE_MONTH = r'(?P<month>%s)' % '|'.join(MONTHS_SORTED)  # january-december
-RE_MON = r'(?P<mon>%s)' % '|'.join(MONS_SORTED)  # jan-dec
 
 # Various formats for presenting less fundamental patterns.
 RE_ACCOUNT_ID = r'(?P<account_id>\d{4,7}|[a-z0-9]{4,7})'
-RE_CHECK_NUMBER = r'(?P<check_number>\d{1,4})'
 
 
-RE_DATE_RANGE = timestamp.GenerateDateRangeRegexp(RE_YYYY, RE_MM, RE_DD)
+T = filesystem.Transformation
+
+
+RE_DATE_RANGE = timestamp.GenerateDateRangeRegexp(T.RE_YYYY, T.RE_MM, T.RE_DD)
 
 
 def GenerateMmByMonthMap(months):
@@ -91,56 +86,56 @@ def MakeKeywords(input):
 # Define the conversions for use by various accounts directories.
 # WARNING: Filename regexp will not match anything fi it expects
 # uppercase letters -- we match against filename.lower().
-C_YYYYMMDD = (  # 20120930.pdf
-   '^%s%s%s%s$' % (RE_YYYY, RE_MM, RE_DD, RE_EXT),
+C_YYYYMMDD = T(  # 20120930.pdf
+   '^%s%s%s%s$' % (T.RE_YYYY, T.RE_MM, T.RE_DD, T.RE_EXT),
    '%(yyyy)s%(mm)s%(dd)s%(ext)s')
-C_YYYY_MM_DD = (  # 2012_09_30.pdf
-   '^%s_%s_%s%s$' % (RE_YYYY, RE_MM, RE_DD, RE_EXT),
+C_YYYY_MM_DD = T(  # 2012_09_30.pdf
+   '^%s_%s_%s%s$' % (T.RE_YYYY, T.RE_MM, T.RE_DD, T.RE_EXT),
    '%(yyyy)s%(mm)s%(dd)s%(ext)s')
-C_MMDDYYYY = (  # 09302012.pdf
-   '^%s%s%s%s$' % (RE_MM, RE_DD, RE_YYYY, RE_EXT),
+C_MMDDYYYY = T(  # 09302012.pdf
+   '^%s%s%s%s$' % (T.RE_MM, T.RE_DD, T.RE_YYYY, T.RE_EXT),
    '%(yyyy)s%(mm)s%(dd)s%(ext)s')
-C_YYYY_MM = (  # 2012_11.pdf
-   '^%s%s%s$' % (RE_YYYY, RE_MM, RE_EXT),
+C_YYYY_MM = T(  # 2012_11.pdf
+   '^%s%s%s$' % (T.RE_YYYY, T.RE_MM, T.RE_EXT),
    '%(yyyy)s%(mm)s%(dd)s%(ext)s')
-C_eStmt_YYYY_MM_DD = (  # eStmt_2012-09-27.pdf
-   '^estmt_%s-%s-%s%s$' % (RE_YYYY, RE_MM, RE_DD, RE_EXT),
+C_eStmt_YYYY_MM_DD = T(  # eStmt_2012-09-27.pdf
+   '^estmt_%s-%s-%s%s$' % (T.RE_YYYY, T.RE_MM, T.RE_DD, T.RE_EXT),
    '%(yyyy)s%(mm)s%(dd)s_estmt%(ext)s')
-C_eStmt_MM_DD_YYYY = (  # eStmt_09_27_2012.pdf
-   '^estmt_%s_%s_%s%s$' % (RE_MM, RE_DD, RE_YYYY, RE_EXT),
+C_eStmt_MM_DD_YYYY = T(  # eStmt_09_27_2012.pdf
+   '^estmt_%s_%s_%s%s$' % (T.RE_MM, T.RE_DD, T.RE_YYYY, T.RE_EXT),
    '%(yyyy)s%(mm)s%(dd)s_estmt%(ext)s')
-C_MM_DD_YYYY_AccountId = (  # 12_30_2001_2345.pdf
-   '^%s_%s_%s_%s%s' % (RE_MM, RE_DD, RE_YYYY, RE_ACCOUNT_ID, RE_EXT),
+C_MM_DD_YYYY_AccountId = T(  # 12_30_2001_2345.pdf
+   '^%s_%s_%s_%s%s' % (T.RE_MM, T.RE_DD, T.RE_YYYY, RE_ACCOUNT_ID, T.RE_EXT),
    '%(yyyy)s%(mm)s%(dd)s_%(account_id)s%(ext)s')
-C_YYYY_MM = (  # 2012_09.pdf
-   '^%s_%s%s$' % (RE_YYYY, RE_MM, RE_EXT),
+C_YYYY_MM = T(  # 2012_09.pdf
+   '^%s_%s%s$' % (T.RE_YYYY, T.RE_MM, T.RE_EXT),
    '%(yyyy)s%(mm)s%(dd)s%(ext)s')
-C_MonthYYYY_AccountId = (  # November2012_7257.qfx
-   '^%s%s_%s%s' % (RE_MONTH, RE_YYYY, RE_ACCOUNT_ID, RE_EXT),
+C_MonthYYYY_AccountId = T(  # November2012_7257.qfx
+   '^%s%s_%s%s' % (T.RE_MONTH, T.RE_YYYY, RE_ACCOUNT_ID, T.RE_EXT),
    '%(yyyy)s%(mm)s%(dd)s_%(account_id)s%(ext)s')
-C_vanguard_AccountId_YYYYMMDD = (  # vanguard-093926-20110322.pdf
-   '^vanguard-%s-%s%s%s%s' % (RE_ACCOUNT_ID, RE_YYYY, RE_MM, RE_DD, RE_EXT),
+C_vanguard_AccountId_YYYYMMDD = T(  # vanguard-093926-20110322.pdf
+   '^vanguard-%s-%s%s%s%s' % (RE_ACCOUNT_ID, T.RE_YYYY, T.RE_MM, T.RE_DD, T.RE_EXT),
    '%(yyyy)s%(mm)s%(dd)s_%(account_id)s%(ext)s')
-C_etrade_AccountId_YYYYMMDD = (  # etrade-9433-20110322.pdf
-   '^etrade-%s-%s%s%s%s' % (RE_ACCOUNT_ID, RE_YYYY, RE_MM, RE_DD, RE_EXT),
+C_etrade_AccountId_YYYYMMDD = T(  # etrade-9433-20110322.pdf
+   '^etrade-%s-%s%s%s%s' % (RE_ACCOUNT_ID, T.RE_YYYY, T.RE_MM, T.RE_DD, T.RE_EXT),
    '%(yyyy)s%(mm)s%(dd)s_%(account_id)s%(ext)s')
-C_etrade_AccountId_YYYY_MM_DD = (  # etrade-9433-2011_03-22.pdf
-   '^etrade-%s-%s_%s-%s%s' % (RE_ACCOUNT_ID, RE_YYYY, RE_MM, RE_DD, RE_EXT),
+C_etrade_AccountId_YYYY_MM_DD = T(  # etrade-9433-2011_03-22.pdf
+   '^etrade-%s-%s_%s-%s%s' % (RE_ACCOUNT_ID, T.RE_YYYY, T.RE_MM, T.RE_DD, T.RE_EXT),
    '%(yyyy)s%(mm)s%(dd)s_%(account_id)s%(ext)s')
-C_ing_AccountId_YYYYMMDD = (  # ing-vf2245-20040930.pdf
-   '^ing-%s-%s%s%s%s' % (RE_ACCOUNT_ID, RE_YYYY, RE_MM, RE_DD, RE_EXT),
+C_ing_AccountId_YYYYMMDD = T(  # ing-vf2245-20040930.pdf
+   '^ing-%s-%s%s%s%s' % (RE_ACCOUNT_ID, T.RE_YYYY, T.RE_MM, T.RE_DD, T.RE_EXT),
    '%(yyyy)s%(mm)s%(dd)s_%(account_id)s%(ext)s')
-C_Statement_MM_DD_YY_AccountId = (  # Statement_03-31-13_7356.pdf
-   '^statement_%s-%s-%s_%s%s' % (RE_MM, RE_DD, RE_YY, RE_ACCOUNT_ID, RE_EXT),
+C_Statement_MM_DD_YY_AccountId = T(  # Statement_03-31-13_7356.pdf
+   '^statement_%s-%s-%s_%s%s' % (T.RE_MM, T.RE_DD, T.RE_YY, RE_ACCOUNT_ID, T.RE_EXT),
    '%(yyyy)s%(mm)s%(dd)s_%(account_id)s%(ext)s')
-C_Statement_MON_YYYY = (  # Statement_Feb 2013.pdf
-   r'^statement_%s %s%s' % (RE_MON, RE_YYYY, RE_EXT),
+C_Statement_MON_YYYY = T(  # Statement_Feb 2013.pdf
+   r'^statement_%s %s%s' % (T.RE_MON, T.RE_YYYY, T.RE_EXT),
    '%(yyyy)s%(mm)s%(dd)s%(ext)s')
-C_check_CHECK_NUMBER = (  # check-1002.jpg
-   r'^check-%s%s' % (RE_CHECK_NUMBER, RE_EXT),
-   'check-%(check_number)s%(ext)s')
-C_YYYY_year_end = (  # 2012-Year End Statement.pdf
-   r'^%s(?:.*[Yy]ear.*[Ee]nd.*)%s' % (RE_YYYY, RE_EXT),
+C_check_CHECK_NUMBER = T(  # check-1002.jpg
+   r'^check-%s%s' % (T.RE_ORDINAL_0000, T.RE_EXT),
+   'check-%(ordinal_0000)s%(ext)s')
+C_YYYY_year_end = T(  # 2012-Year End Statement.pdf
+   r'^%s(?:.*[Yy]ear.*[Ee]nd.*)%s' % (T.RE_YYYY, T.RE_EXT),
    '%(yyyy)s_year_end%(ext)s')
 
 
@@ -179,7 +174,7 @@ def IsFileIgnored(filepath):
       '/Icon\r$',
       '/desktop.ini$',
       '/.DS_Store$',
-      '%s%s' % (RE_DATE_RANGE, RE_EXT)]:
+      '%s%s' % (RE_DATE_RANGE, T.RE_EXT)]:
     if re.search(regexp, filepath):
       is_ignored = True
       break
@@ -188,20 +183,15 @@ def IsFileIgnored(filepath):
   return is_ignored
 
 
-def TryNormalize(filename, conversions, dry_run=True):
+def TryNormalize(filename, transformations, dry_run=True):
   """If necessary, normalize the file. Returns new filename or None."""
-  logging.debug('Trying to normalize %r via %r.', filename, conversions)
+  logging.debug('Trying to normalize %r via %r.', filename, transformations)
   # TODO(drond-git): Add renaming for filenames that we want sortable even
   # though they don't involve timestamps.
-  for regexp, template in conversions:
-    match_value = filename.lower()
-    logging.debug(
-        'Matching %r against %r, for template %r',
-      match_value, regexp, template)
-    match = re.search(regexp, match_value)
-    logging.debug('Match is %r', match)
-    if match:
-      return template % MakeKeywords(match.groupdict())
+  for t in transformations:
+    name = t.Transform(filename)
+    if name is not None:
+      return name
   return None  # None if not matched any renamer expression.
 
 
@@ -247,7 +237,11 @@ def NormalizeStatementsFiles(statements_root):
     else:
       conversions = conversions_list[0]
     for filename in relative_dirpath_partitions[relative_dirpath]:
-      filename_new = TryNormalize(filename, conversions, dry_run=True)
+      filename_new = None
+      for transformation in conversions:
+        filename_new = transformation.Transform(filename)
+        if filename_new:
+          break
       if not filename_new:
         logging.warning('Unmatched: %r (in %r)', filename, relative_dirpath)
       elif filename_new != filename:

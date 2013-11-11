@@ -11,49 +11,6 @@ from automate import normalize_statements_files
 
 class ModuleTest(unittest.TestCase):
 
-  def testMakeKeywordsExtOnly(self):
-    self.assertEqual(
-      {'ext': '.myext',
-       'yyyy': 'YYYY',
-       'mm': 'MM',
-       'dd': 'DD'},
-      normalize_statements_files.MakeKeywords({'ext': '.MyExt'}))
-      
-  def testMakeKeywordsYyyy(self):
-    test_values = [
-      ({'yyyy': '2000'}, '2000'),
-      ({'yy': '13'}, '2013'),
-      ({}, 'YYYY')]
-    for input, expected_value in test_values:
-      keywords = normalize_statements_files.MakeKeywords(input)
-      self.assertEqual(keywords.get('yyyy'), expected_value)
-      
-  def testMakeKeywordsMm(self):
-    test_values = [
-      ({'mm': '10'}, '10'),
-      ({'month': 'february'}, '02'),
-      ({'mon': 'mar'}, '03'),
-      ({}, 'MM')]
-    for input, expected_value in test_values:
-      keywords = normalize_statements_files.MakeKeywords(input)
-      self.assertEqual(keywords.get('mm'), expected_value)
-      
-  def testMakeKeywordsDd(self):
-    test_values = [
-      ({'dd': '31'}, '31'),
-      ({}, 'DD')]
-    for input, expected_value in test_values:
-      keywords = normalize_statements_files.MakeKeywords(input)
-      self.assertEqual(keywords.get('dd'), expected_value)
-
-  def testMakeKeywordsCheckNumber(self):
-    test_values = [
-      ({'check_number': '21'}, '0021'),
-      ({}, None)]
-    for input, expected_value in test_values:
-      keywords = normalize_statements_files.MakeKeywords(input)
-      self.assertEqual(keywords.get('check_number'), expected_value)
-      
   def testIsIgnoredFile(self):
     self.assertTrue(normalize_statements_files.IsFileIgnored('./Icon\r'))
     self.assertTrue(normalize_statements_files.IsFileIgnored('./.DS_Store'))
