@@ -64,7 +64,7 @@ class Transformation(object):
             self.__class__.__name__, self._match_re, self._transformation_rule))
 
   def Transform(self, string_):
-    """Return transformation result for string_, or None if not matched."""
+    """Return transformation result for string_, or None if it didn't match."""
     string_to_match = string_.lower()
     if string_to_match == string_:
       logging.debug('Transforming %r via %r.', string_to_match, self)
