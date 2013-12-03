@@ -1,6 +1,6 @@
 #!/bin/bash
 
-REPO_ROOT=$HOME/github/home
+REPO_ROOT=$HOME/Personal/github/home
 
 export PYTHONPATH=${REPO_RROT}:${PYTHONPATH}
 
