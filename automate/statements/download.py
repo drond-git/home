@@ -145,15 +145,40 @@ def DownloadAmexAll(browser):
     DownloadAmexOne(browser, "")
 
 
-    # "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --user-data-dir=/Users/vsh/Downloads/Selenium/chrome-profiles --profile-directory=Automation
+
+# "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --user-data-dir=/Users/vsh/Downloads/Selenium/chrome-profiles --profile-directory=Automation
 chrome_options = Options()
 chrome_options.add_argument("--disable-extensions")
 chrome_options.add_argument("--user-data-dir=/Users/vsh/Downloads/Selenium/chrome-profiles")
 chrome_options.add_argument("--profile-directory=Automation")
 
-browser = webdriver.Chrome(
-    executable_path="/Users/vsh/Downloads/Selenium/chromedriver",
-    chrome_options=chrome_options)
+# Per https://sites.google.com/a/chromium.org/chromedriver/capabilities docs:
+prefs = {
+    "savefile.default_directory" : "/Users/vsh/Downloads/Selenium/chrome-downloads",
+    "download.default_directory" : "/Users/vsh/Downloads/Selenium/chrome-downloads",
+    "download.directory_upgrade" : 1,
+    "download.prompt_for_download" : 1,
+    }
+prefs = {
+    "savefile": { "default_directory" : "/Users/vsh/Downloads/Selenium/chrome-downloads"},
+    "download": {
+        "default_directory" : "/Users/vsh/Downloads/Selenium/chrome-downloads",
+        "directory_upgrade" : 1,
+        "prompt_for_download": 1,
+        },
+    }
+chrome_options.add_experimental_option("prefs", prefs)
+
+browser = webdriver.Chrome(executable_path="/Users/vsh/Downloads/Selenium/chromedriver", chrome_options=chrome_options)
+
+# Most likely plan:
+#   - Edit profile's Preferences to set the downloads directory, so I don't have to maintain that
+#     aspect manually.
+#   - Proceed "one file downloaded at a time.
+#   - List all files in download directory, kick off file download, then wait until there's one new file. In-progress download files have .crdownload extensions.
+#   - Find a way to be sure the download ended successfully. See http://stackoverflow.com/questions/559096/check-whether-a-pdf-file-is-valid-python.
+#   - Pass the one new file to a function that will move and rename it to represent the statement's period.
+
 
 if False:
     SigninBoa(browser)

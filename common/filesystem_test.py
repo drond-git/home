@@ -4,19 +4,53 @@
 # Tests.
 
 
-import unittest
 import logging
+import os
+import tempfile
+import unittest
 
 import common.filesystem as filesystem
 
 
 class ModuleTest(unittest.TestCase):
 
+  def testWriteReadFileContents(self):
+    """Test filesystem.ReadFileContents and filesystem.WriteFileContents."""
+    filename = tempfile.mktemp(dir="/tmp")
+    filesystem.WriteFileContents(filename, 'foobar')
+    self.assertEqual('foobar', filesystem.GetFileContents(filename))
+
   def testGetRelativeDirpath(self):
     self.assertEqual('', filesystem.GetRelativeDirpath('/', '/'))
     self.assertEqual('foo', filesystem.GetRelativeDirpath('/foo', '/'))
     self.assertEqual(
         'baz', filesystem.GetRelativeDirpath('/foo/bar/baz', '/foo/bar'))
+
+  def testDirectoryWatcher(self):
+      dirpath = "/tmp"
+      watcher = filesystem.DownloadDirectoryWatcher(
+          dirpath, 0.3, deadline_seconds=1.0).StartWatch()
+      # Check that deadline gets exceeded...
+      self.assertRaises(
+          filesystem.DownloadDirectoryWatcher.DeadlineExceededError,
+          watcher.WaitForNewFile)
+      # ...Even in presense of temp and hidden files (they should get ignored)...
+      filename = tempfile.mktemp(dir="/tmp")
+      filename_hidden = os.path.join(
+          os.path.dirname(filename), '.%s' % os.path.basename(filename))
+      filesystem.WriteFileContents(filename_hidden, 'unused')
+      filename_inprogress = '%s.crdownload'
+      filesystem.WriteFileContents(filename_inprogress, 'unused')
+      self.assertRaises(
+          filesystem.DownloadDirectoryWatcher.DeadlineExceededError,
+          watcher.WaitForNewFile)
+      # ...And only after we write a normal file, the watcher finds it.
+      filesystem.WriteFileContents(filename, 'unused')
+      watcher.WaitForNewFile()
+      # Clean up the files we created.
+      os.unlink(filename_hidden)
+      os.unlink(filename_inprogress)
+      os.unlink(filename)
 
 
 class TransformationTest(unittest.TestCase):
@@ -76,4 +110,5 @@ class TransformationTest(unittest.TestCase):
 
 
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
     unittest.main()
