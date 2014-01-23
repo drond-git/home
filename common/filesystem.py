@@ -142,54 +142,54 @@ class Transformation(object):
 
 class DownloadDirectoryWatcher(object):
 
-    class Error(Exception):
-        pass
+  class Error(Exception):
+    pass
 
-    class DeadlineExceededError(Error):
-        pass
+  class DeadlineExceededError(Error):
+    pass
 
-    class WatchNotStartedError(Error):
-        pass
+  class WatchNotStartedError(Error):
+    pass
 
-    class TooManyNewFilesError(Error):
-        pass
+  class TooManyNewFilesError(Error):
+    pass
 
-    def __init__(self, dirpath, interval_seconds, deadline_seconds=60.0):
-        self._dirpath = dirpath
-        self._interval_seconds = interval_seconds
-        self._deadline_seconds = deadline_seconds
-        self._dirlist_last = set()
-        self._watch_started = False
+  def __init__(self, dirpath, interval_seconds, deadline_seconds=60.0):
+    self._dirpath = dirpath
+    self._interval_seconds = interval_seconds
+    self._deadline_seconds = deadline_seconds
+    self._dirlist_last = set()
+    self._watch_started = False
 
-    @staticmethod
-    def _ListDirectory(dirpath):
-        return set(os.listdir(dirpath))
+  @staticmethod
+  def _ListDirectory(dirpath):
+    return set(os.listdir(dirpath))
 
-    def StartWatch(self):
-        self._dirlist_last = self._ListDirectory(self._dirpath)
-        self._watch_started = True
-        return self
+  def StartWatch(self):
+    self._dirlist_last = self._ListDirectory(self._dirpath)
+    self._watch_started = True
+    return self
 
-    def WaitForNewFile(self):
-        wait_started_time = time.time()
-        if not self._watch_started:
-            raise self.WatchNotStartedError()
-        while True:
-            logging.debug('Watch cycle starting.')
-            if time.time() - wait_started_time > self._deadline_seconds:
-                raise self.DeadlineExceededError()
-            time.sleep(self._interval_seconds)
-            added = self._ListDirectory(self._dirpath) - self._dirlist_last
-            # Filter out transient files.
-            transient = set()
-            for filename in added:
-                if (re.search('^\..+', filename) or  # Hidden file.
-                    filename.endswith('.crdownload')):  # Chrome downloading.
-                    transient.add(filename)
-            added -= transient
-            if len(added) > 1:
-                raise self.TooManyNewFilesError()
-            if len(added) == 1:
-                filename = added.pop()
-                logging.debug("Watch returning %r", filename)
-                return filename
+  def WaitForNewFile(self):
+    wait_started_time = time.time()
+    if not self._watch_started:
+      raise self.WatchNotStartedError()
+    while True:
+      logging.debug('Watch cycle starting.')
+      if time.time() - wait_started_time > self._deadline_seconds:
+        raise self.DeadlineExceededError()
+      time.sleep(self._interval_seconds)
+      added = self._ListDirectory(self._dirpath) - self._dirlist_last
+      # Filter out transient files.
+      transient = set()
+      for filename in added:
+          if (re.search('^\..+', filename) or  # Hidden file.
+              filename.endswith('.crdownload')):  # Chrome downloading.
+            transient.add(filename)
+      added -= transient
+      if len(added) > 1:
+        raise self.TooManyNewFilesError()
+      if len(added) == 1:
+        filename = added.pop()
+        logging.debug("Watch returning %r", filename)
+        return filename

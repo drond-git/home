@@ -27,30 +27,30 @@ class ModuleTest(unittest.TestCase):
         'baz', filesystem.GetRelativeDirpath('/foo/bar/baz', '/foo/bar'))
 
   def testDirectoryWatcher(self):
-      dirpath = "/tmp"
-      watcher = filesystem.DownloadDirectoryWatcher(
-          dirpath, 0.3, deadline_seconds=1.0).StartWatch()
-      # Check that deadline gets exceeded...
-      self.assertRaises(
-          filesystem.DownloadDirectoryWatcher.DeadlineExceededError,
-          watcher.WaitForNewFile)
-      # ...Even in presense of temp and hidden files (they should get ignored)...
-      filename = tempfile.mktemp(dir="/tmp")
-      filename_hidden = os.path.join(
-          os.path.dirname(filename), '.%s' % os.path.basename(filename))
-      filesystem.WriteFileContents(filename_hidden, 'unused')
-      filename_inprogress = '%s.crdownload'
-      filesystem.WriteFileContents(filename_inprogress, 'unused')
-      self.assertRaises(
-          filesystem.DownloadDirectoryWatcher.DeadlineExceededError,
-          watcher.WaitForNewFile)
-      # ...And only after we write a normal file, the watcher finds it.
-      filesystem.WriteFileContents(filename, 'unused')
-      watcher.WaitForNewFile()
-      # Clean up the files we created.
-      os.unlink(filename_hidden)
-      os.unlink(filename_inprogress)
-      os.unlink(filename)
+    dirpath = "/tmp"
+    watcher = filesystem.DownloadDirectoryWatcher(
+        dirpath, 0.3, deadline_seconds=1.0).StartWatch()
+    # Check that deadline gets exceeded...
+    self.assertRaises(
+        filesystem.DownloadDirectoryWatcher.DeadlineExceededError,
+        watcher.WaitForNewFile)
+    # ...Even in presense of temp and hidden files (they should get ignored)...
+    filename = tempfile.mktemp(dir="/tmp")
+    filename_hidden = os.path.join(
+        os.path.dirname(filename), '.%s' % os.path.basename(filename))
+    filesystem.WriteFileContents(filename_hidden, 'unused')
+    filename_inprogress = '%s.crdownload'
+    filesystem.WriteFileContents(filename_inprogress, 'unused')
+    self.assertRaises(
+        filesystem.DownloadDirectoryWatcher.DeadlineExceededError,
+        watcher.WaitForNewFile)
+    # ...And only after we write a normal file, the watcher finds it.
+    filesystem.WriteFileContents(filename, 'unused')
+    watcher.WaitForNewFile()
+    # Clean up the files we created.
+    os.unlink(filename_hidden)
+    os.unlink(filename_inprogress)
+    os.unlink(filename)
 
 
 class TransformationTest(unittest.TestCase):
