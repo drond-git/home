@@ -2,6 +2,8 @@
 
 import time
 
+from common import app
+
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
@@ -169,7 +171,8 @@ prefs = {
     }
 chrome_options.add_experimental_option("prefs", prefs)
 
-browser = webdriver.Chrome(executable_path="/Users/vsh/Downloads/Selenium/chromedriver", chrome_options=chrome_options)
+if False:
+  browser = webdriver.Chrome(executable_path="/Users/vsh/Downloads/Selenium/chromedriver", chrome_options=chrome_options)
 
 # Most likely plan:
 #   - Edit profile's Preferences to set the downloads directory, so I don't have to maintain that
@@ -184,17 +187,29 @@ if False:
     SigninBoa(browser)
     DownloadBoaAll(browser)
 
-if True:
+if False:
     SigninAmex(browser)
     DownloadAmexAll(browser)
 
-
 # Exit before we quit the browser -- leave it for debugging.
-exit(0)
+##exit(0)
 
-time.sleep(180.0)
-browser.quit()
+##time.sleep(180.0)
+##browser.quit()
 
 
 ## elem = browser.find_element_by_name('p')  # Find the search box
 ## elem.send_keys('seleniumhq' + Keys.RETURN)
+
+
+ARGS = app.ARGS
+ARGS.PARSER.add_argument('foo')
+
+
+def main(argv):
+  print "RUN MY MAIN with argv %r" % argv
+  print 'ARG --foo = %r' % ARGS.foo
+
+
+if __name__ == '__main__':
+  app.run()
